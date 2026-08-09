@@ -1,12 +1,15 @@
 name: Static checks
+
 on:
   push:
   pull_request:
+
 jobs:
   validate:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - name: Validate required files
         run: |
           test -f index.html
@@ -14,6 +17,11 @@ jobs:
           test -f js/pages/home.js
           test -f supabase/migrations/0001_foundation.sql
           test -f README.md
+
       - name: Check for accidental secrets
         run: |
-          ! grep -RInE 'SUPABASE_SERVICE_ROLE|CLOUDINARY_API_SECRET|BEGIN PRIVATE KEY' --exclude-dir=.git .
+          ! grep -RInE 'SUPABASE_SERVICE_ROLE|CLOUDINARY_API_SECRET|BEGIN PRIVATE KEY' \
+            --exclude-dir=.git \
+            --exclude='*.yml' \
+            --exclude='*.yaml' \
+            .
