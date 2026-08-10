@@ -9,5 +9,5 @@ export const config = Object.freeze({
   supabaseAnonKey: runtime.supabaseAnonKey ?? 'YOUR_SUPABASE_ANON_KEY',
   cloudinaryCloudName: runtime.cloudinaryCloudName ?? 'YOUR_CLOUD_NAME',
   cloudinaryUploadPreset: runtime.cloudinaryUploadPreset ?? 'rm_select_products',
-  whatsappNumber: runtime.whatsappNumber ?? '',
+  whatsappNumbers: runtime.whatsappNumbers ?? ['573138371374', '573213622136'],
 });
