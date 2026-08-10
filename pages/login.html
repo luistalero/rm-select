@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Inicia sesión en RM SELECT.">
+  <meta name="theme-color" content="#FAF8F2">
+  <title>Iniciar sesión | RM SELECT</title>
+  <link rel="stylesheet" href="../css/main.css">
+  <link rel="stylesheet" href="../css/auth.css">
+</head>
+<body class="auth-page">
+  <main class="auth-shell">
+    <a class="auth-brand" href="../index.html" aria-label="Volver a RM SELECT">
+      <span>RM</span> SELECT
+    </a>
+    <section class="auth-card" aria-labelledby="login-title">
+      <p class="eyebrow">RM SELECT</p>
+      <h1 id="login-title">Bienvenido de nuevo.</h1>
+      <p class="auth-copy">Accede a tu cuenta para consultar tus pedidos y beneficios.</p>
+      <form id="login-form" novalidate>
+        <label>Correo electrónico<input id="email" type="email" autocomplete="email" required></label>
+        <label>Contraseña<input id="password" type="password" autocomplete="current-password" required></label>
+        <button class="button button--primary" id="submit-button" type="submit">Iniciar sesión</button>
+        <p id="auth-status" class="auth-status" role="status" aria-live="polite"></p>
+      </form>
+      <div class="auth-links">
+        <a href="../index.html">Volver a la tienda</a>
+      </div>
+    </section>
+  </main>
+  <script src="../js/runtime-config.js"></script>
+  <script type="module" src="../js/pages/login.js"></script>
+</body>
+</html>
