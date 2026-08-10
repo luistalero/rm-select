@@ -1,0 +1,72 @@
+name: Deploy RM SELECT to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Inject public runtime configuration
+        env:
+          SUPABASE_URL: ${{ vars.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ vars.SUPABASE_ANON_KEY }}
+          CLOUDINARY_CLOUD_NAME: ${{ vars.CLOUDINARY_CLOUD_NAME }}
+          CLOUDINARY_UPLOAD_PRESET: ${{ vars.CLOUDINARY_UPLOAD_PRESET }}
+          WHATSAPP_NUMBER: ${{ vars.WHATSAPP_NUMBER }}
+        run: |
+          node <<'NODE'
+          const fs = require('fs');
+          const config = {
+            supabaseUrl: process.env.SUPABASE_URL || '',
+            supabaseAnonKey: process.env.SUPABASE_ANON_KEY || '',
+            cloudinaryCloudName: process.env.CLOUDINARY_CLOUD_NAME || '',
+            cloudinaryUploadPreset: process.env.CLOUDINARY_UPLOAD_PRESET || 'rm_select_products',
+            whatsappNumber: process.env.WHATSAPP_NUMBER || '',
+          };
+          fs.writeFileSync(
+            'js/runtime-config.js',
+            `globalThis.RM_SELECT_CONFIG = ${JSON.stringify(config)};\n`,
+            'utf8'
+          );
+          NODE
+
+      - name: Validate runtime configuration
+        run: |
+          test -n "${{ vars.SUPABASE_URL }}"
+          test -n "${{ vars.SUPABASE_ANON_KEY }}"
+          test -n "${{ vars.CLOUDINARY_CLOUD_NAME }}"
+          test -n "${{ vars.CLOUDINARY_UPLOAD_PRESET }}"
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v4
