@@ -131,7 +131,9 @@ begin
     raise exception 'Not authorized to cancel this order';
   end if;
 
-  if v_order.order_status in ('DELIVERED', 'CANCELLED', 'EXPIRED') then
+  -- Once payment is verified, stock has been consumed rather than reserved.
+  -- Cancellation/refund after that point requires a separate return workflow.
+  if v_order.order_status not in ('PENDING_PAYMENT', 'PAYMENT_REVIEW') then
     return false;
   end if;
 
@@ -145,7 +147,7 @@ begin
 
   update public.orders
   set order_status = 'CANCELLED',
-      payment_status = case when payment_status = 'VERIFIED' then payment_status else 'REJECTED' end,
+      payment_status = 'REJECTED',
       reservation_expires_at = null,
       updated_at = now()
   where id = p_order_id;
@@ -188,6 +190,10 @@ begin
   end if;
 
   if p_verified then
+    if v_order.payment_status = 'VERIFIED' then
+      return false;
+    end if;
+
     for v_item in
       select oi.variant_id, oi.quantity
       from public.order_items oi
