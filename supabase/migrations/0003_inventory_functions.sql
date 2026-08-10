@@ -3,6 +3,8 @@
 
 revoke execute on function public.is_staff() from anon;
 
+-- Customers can edit contact fields only. Role and privilege-related fields are never
+-- directly writable from the browser; staff-role changes will use a dedicated function.
 revoke update on public.profiles from authenticated;
 grant update (full_name, phone, document_number) on public.profiles to authenticated;
 
@@ -256,14 +258,14 @@ begin
 end;
 $$;
 
-revoke all on function public.reserve_stock(uuid, integer, uuid) from public;
-revoke all on function public.release_stock(uuid, integer, uuid) from public;
-revoke all on function public.consume_reserved_stock(uuid, integer, uuid) from public;
-revoke all on function public.record_external_sale(uuid, integer, text, text) from public;
-revoke all on function public.adjust_stock(uuid, integer, text, text) from public;
+-- These are internal primitives. They are callable only by other SECURITY DEFINER
+-- functions owned by the database, never directly through PostgREST.
+revoke all on function public.reserve_stock(uuid, integer, uuid) from public, anon, authenticated;
+revoke all on function public.release_stock(uuid, integer, uuid) from public, anon, authenticated;
+revoke all on function public.consume_reserved_stock(uuid, integer, uuid) from public, anon, authenticated;
 
-grant execute on function public.reserve_stock(uuid, integer, uuid) to anon, authenticated;
-grant execute on function public.release_stock(uuid, integer, uuid) to authenticated;
-grant execute on function public.consume_reserved_stock(uuid, integer, uuid) to authenticated;
+-- Staff-facing operations are intentionally exposed only after an is_staff() check.
+revoke all on function public.record_external_sale(uuid, integer, text, text) from public, anon, authenticated;
+revoke all on function public.adjust_stock(uuid, integer, text, text) from public, anon, authenticated;
 grant execute on function public.record_external_sale(uuid, integer, text, text) to authenticated;
 grant execute on function public.adjust_stock(uuid, integer, text, text) to authenticated;
