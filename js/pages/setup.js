@@ -15,12 +15,12 @@ const friendlyError = (error) => {
   if (/invalid bootstrap secret/i.test(message)) return 'El código privado de activación no es válido.';
   if (/already used|already exists/i.test(message)) return 'La activación inicial ya fue utilizada. El SUPER_ADMIN ya está configurado.';
   if (/not configured/i.test(message)) return 'La activación inicial todavía no está configurada en Supabase.';
-  if (/email.*confirm/i.test(message)) return 'Debes confirmar el correo electrónico antes de completar la activación.';
+  if (/email.*confirm|email.*not confirmed/i.test(message)) return 'Debes confirmar el correo electrónico antes de completar la activación.';
   return message || 'No fue posible completar la configuración inicial.';
 };
 
 async function ensureAccount({ email, password, fullName, phone }) {
-  const signUpResult = await supabase.auth.signUp({
+  const { data, error } = await supabase.auth.signUp({
     email,
     password,
     options: {
@@ -31,16 +31,28 @@ async function ensureAccount({ email, password, fullName, phone }) {
     },
   });
 
-  if (!signUpResult.error) {
-    return signUpResult.data;
+  if (error && !/already registered/i.test(error.message)) {
+    throw error;
   }
 
-  if (!/already registered/i.test(signUpResult.error.message)) {
-    throw signUpResult.error;
+  // With email confirmation enabled, Supabase can return an existing user
+  // without an error and without a session. This is exactly what happened on
+  // the second setup attempt, so sign in explicitly instead of treating it as
+  // a brand-new account.
+  if (data?.session) return data;
+
+  if (data?.user && Array.isArray(data.user.identities) && data.user.identities.length === 0) {
+    const signIn = await supabase.auth.signInWithPassword({ email, password });
+    if (signIn.error) throw signIn.error;
+    return signIn.data;
   }
 
-  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-  if (error) throw error;
+  if (error && /already registered/i.test(error.message)) {
+    const signIn = await supabase.auth.signInWithPassword({ email, password });
+    if (signIn.error) throw signIn.error;
+    return signIn.data;
+  }
+
   return data;
 }
 
