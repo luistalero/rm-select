@@ -20,38 +20,31 @@ const friendlyError = (error) => {
 };
 
 async function ensureAccount({ email, password, fullName, phone }) {
+  const { data: sessionData } = await supabase.auth.getSession();
+  if (sessionData.session) return sessionData;
+
+  // Always try to sign in first. This prevents an already-confirmed setup
+  // account from being treated as a new registration on every submission.
+  const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({ email, password });
+  if (!signInError && signInData.session) return signInData;
+
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
     options: {
-      data: {
-        full_name: fullName,
-        phone: phone || null,
-      },
+      data: { full_name: fullName, phone: phone || null },
+      emailRedirectTo: new URL('./', window.location.href).toString(),
     },
   });
 
-  if (error && !/already registered/i.test(error.message)) {
+  if (error) {
+    if (/already registered|already exists|user already/i.test(error.message)) {
+      throw new Error('La cuenta ya existe. La contraseña no pudo iniciar sesión; verifica tus credenciales.');
+    }
     throw error;
   }
 
-  // With email confirmation enabled, Supabase can return an existing user
-  // without an error and without a session. This is exactly what happened on
-  // the second setup attempt, so sign in explicitly instead of treating it as
-  // a brand-new account.
-  if (data?.session) return data;
-
-  if (data?.user && Array.isArray(data.user.identities) && data.user.identities.length === 0) {
-    const signIn = await supabase.auth.signInWithPassword({ email, password });
-    if (signIn.error) throw signIn.error;
-    return signIn.data;
-  }
-
-  if (error && /already registered/i.test(error.message)) {
-    const signIn = await supabase.auth.signInWithPassword({ email, password });
-    if (signIn.error) throw signIn.error;
-    return signIn.data;
-  }
+  if (data.session) return data;
 
   return data;
 }
@@ -61,7 +54,6 @@ async function activateSuperAdmin(userId, secret) {
     p_user_id: userId,
     p_secret: secret,
   });
-
   if (error) throw error;
 }
 
@@ -76,16 +68,17 @@ form.addEventListener('submit', async (event) => {
   const secret = document.getElementById('secret').value;
 
   button.disabled = true;
-  setStatus('Preparando la cuenta segura…');
+  setStatus('Comprobando la cuenta…');
 
   try {
     const auth = await ensureAccount({ email, password, fullName, phone });
 
     if (!auth.session) {
-      setStatus('La cuenta fue creada. Revisa tu correo, confirma la dirección y vuelve a pulsar «Crear SUPER_ADMIN» para completar la activación.', 'success');
+      setStatus('La cuenta fue creada. Revisa tu correo, confirma la dirección y vuelve a esta página para completar la activación.', 'success');
       return;
     }
 
+    setStatus('Cuenta verificada. Activando SUPER_ADMIN…');
     await activateSuperAdmin(auth.user.id, secret);
 
     setStatus('SUPER_ADMIN creado correctamente. La activación inicial quedó bloqueada y ya no puede utilizarse otra vez.', 'success');
