@@ -11,7 +11,6 @@ create table if not exists public.super_admin_bootstrap (
 );
 
 alter table public.super_admin_bootstrap enable row level security;
-
 revoke all on public.super_admin_bootstrap from anon, authenticated;
 
 create or replace function public.bootstrap_super_admin(
@@ -31,8 +30,6 @@ begin
     raise exception 'Invalid bootstrap request';
   end if;
 
-  -- Serialize the one-time operation. This prevents two first visitors from
-  -- both becoming SUPER_ADMIN during a race.
   select * into v_bootstrap
   from public.super_admin_bootstrap
   where id = true
@@ -60,6 +57,11 @@ begin
   if not (v_bootstrap.secret_hash = encode(digest(p_secret, 'sha256'), 'hex')) then
     raise exception 'Invalid bootstrap secret';
   end if;
+
+  -- Transaction-local trusted flag. Only this SECURITY DEFINER function can set
+  -- it, allowing the role guard to distinguish the initial bootstrap from a
+  -- normal browser role-escalation attempt.
+  perform set_config('rm_select.bootstrap', 'true', true);
 
   update public.profiles
   set role = 'SUPER_ADMIN',
@@ -90,7 +92,7 @@ revoke all on function public.bootstrap_super_admin(uuid, text) from public, ano
 grant execute on function public.bootstrap_super_admin(uuid, text) to anon, authenticated;
 
 -- IMPORTANT: after running this migration, configure the one-time secret manually
--- in Supabase SQL Editor. Do NOT commit the secret to GitHub.
+-- in Supabase SQL Editor. Do NOT commit the secret to Git.
 -- Example:
 -- insert into public.super_admin_bootstrap (secret_hash)
 -- values (encode(digest('YOUR-PRIVATE-ONE-TIME-SECRET', 'sha256'), 'hex'));
