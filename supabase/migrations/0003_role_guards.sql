@@ -4,6 +4,9 @@
 drop policy if exists profiles_staff_all on public.profiles;
 drop policy if exists profiles_update_self on public.profiles;
 
+drop policy if exists profiles_super_admin_manage on public.profiles;
+drop policy if exists profiles_admin_manage_non_privileged on public.profiles;
+
 create policy profiles_update_self_safe on public.profiles
 for update using (id = auth.uid())
 with check (
@@ -29,7 +32,14 @@ set search_path = public
 as $$
 declare
   admin_count integer;
+  bootstrap_mode boolean := coalesce(current_setting('rm_select.bootstrap', true), 'false') = 'true';
 begin
+  -- The one-time bootstrap RPC is the only trusted path that may promote the
+  -- first account before that account is itself SUPER_ADMIN.
+  if bootstrap_mode and new.role = 'SUPER_ADMIN' and old.role = 'CUSTOMER' then
+    return new;
+  end if;
+
   if new.role is distinct from old.role and not public.has_role('SUPER_ADMIN') then
     raise exception 'Only SUPER_ADMIN can change account roles';
   end if;
