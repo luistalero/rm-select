@@ -30,25 +30,16 @@
 <div class="admin-user"><div><strong id="module-user">Cargando…</strong><span id="module-role">—</span></div><button id="logout-button" class="button button--ghost" type="button">Cerrar sesión</button></div>
 </header>
 <section id="module-status" class="admin-status">Comprobando permisos…</section>
-
 <section class="admin-section products-toolbar" aria-label="Herramientas de productos">
-<div>
-<label class="admin-field-label" for="product-search">Buscar</label>
-<input id="product-search" class="admin-input" type="search" placeholder="Nombre o SKU…" autocomplete="off">
-</div>
-<div>
-<label class="admin-field-label" for="category-filter">Categoría</label>
-<select id="category-filter" class="admin-input"><option value="">Todas</option></select>
-</div>
+<div><label class="admin-field-label" for="product-search">Buscar</label><input id="product-search" class="admin-input" type="search" placeholder="Nombre o SKU…" autocomplete="off"></div>
+<div><label class="admin-field-label" for="category-filter">Categoría</label><select id="category-filter" class="admin-input"><option value="">Todas</option></select></div>
 <button id="new-product-button" class="button" type="button">+ Nuevo producto</button>
 </section>
-
 <section class="admin-section">
 <div class="admin-section-heading"><div><p class="eyebrow">CATÁLOGO ACTUAL</p><h2>Productos</h2></div><span id="product-count" class="admin-count">0 productos</span></div>
 <div id="product-status" class="admin-status" hidden></div>
 <div id="products-list" class="product-admin-list"></div>
 </section>
-
 <div id="product-modal" class="admin-modal" hidden>
 <div class="admin-modal-backdrop" data-close-modal></div>
 <section class="admin-modal-card" role="dialog" aria-modal="true" aria-labelledby="modal-title">
@@ -74,6 +65,7 @@
 </div>
 </main>
 </div>
+<script src="../../js/runtime-config.js"></script>
 <script type="module" src="../../js/pages/products.js"></script>
 </body>
 </html>
