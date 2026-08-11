@@ -12,8 +12,20 @@ Run these migrations in Supabase SQL Editor in this order:
 4. `0003_role_guards.sql`
 5. `0004_orders_and_reservations.sql`
 6. `0005_one_time_super_admin_bootstrap.sql`
+7. `20260811121000_payment_receipt_flow.sql`
+8. `20260811180000_order_lifecycle.sql`
 
 `0002_rls.sql` is an older baseline and must **not** be run together with `0002_security_and_rls.sql`.
+
+## Order lifecycle
+
+After payment review, fulfillment is intentionally sequential:
+
+`CONFIRMED` → `PREPARING` → `SHIPPED` → `DELIVERED`
+
+The browser cannot write these statuses directly. Staff use the `transition_order_status()` security-definer RPC, which validates each transition and updates the corresponding `shipping_status` and audit record.
+
+Rejecting a submitted payment receipt keeps the order in `PENDING_PAYMENT` while its reservation is still valid, allowing the customer to upload a corrected receipt. If the reservation has already expired, the order becomes `EXPIRED` and its reserved stock is released.
 
 ## One-time SUPER_ADMIN setup
 
