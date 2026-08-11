@@ -12,85 +12,18 @@
 <aside class="admin-sidebar" id="admin-sidebar">
 <a class="admin-brand" href="./index.html"><strong>R&M</strong> SELECT</a>
 <nav aria-label="Administración">
-<a href="./index.html">Dashboard</a>
-<a class="is-active" href="./products.html">Productos</a>
-<a href="./inventory.html">Inventario</a>
-<a href="./orders.html">Pedidos</a>
-<a href="./customers.html">Clientes</a>
-<a href="./reviews.html">Reseñas</a>
-<a href="./audit.html">Auditoría</a>
-<a href="./administrators.html">Administradores</a>
-<a href="./settings.html">Configuración</a>
-</nav>
-<a class="admin-store-link" href="../../index.html">← Ver tienda</a>
+<a href="./index.html">Dashboard</a><a class="is-active" href="./products.html">Productos</a><a href="./inventory.html">Inventario</a><a href="./orders.html">Pedidos</a><a href="./customers.html">Clientes</a><a href="./reviews.html">Reseñas</a><a href="./audit.html">Auditoría</a><a href="./administrators.html">Administradores</a><a href="./settings.html">Configuración</a>
+</nav><a class="admin-store-link" href="../../index.html">← Ver tienda</a>
 </aside>
 <main class="admin-main">
-<header class="admin-topbar">
-<div class="admin-heading-row"><button class="admin-menu" id="menu-button" type="button" aria-label="Abrir menú">☰</button><div><p class="eyebrow">CATÁLOGO</p><h1>Productos</h1></div></div>
-<div class="admin-user"><div><strong id="module-user">Cargando…</strong><span id="module-role">—</span></div><button id="logout-button" class="button button--ghost" type="button">Cerrar sesión</button></div>
-</header>
+<header class="admin-topbar"><div class="admin-heading-row"><button class="admin-menu" id="menu-button" type="button" aria-label="Abrir menú">☰</button><div><p class="eyebrow">CATÁLOGO</p><h1>Productos</h1></div></div><div class="admin-user"><div><strong id="module-user">Cargando…</strong><span id="module-role">—</span></div><button id="logout-button" class="button button--ghost" type="button">Cerrar sesión</button></div></header>
 <section id="module-status" class="admin-status">Comprobando permisos…</section>
-<section class="admin-section products-toolbar" aria-label="Herramientas de productos">
-<div><label class="admin-field-label" for="product-search">Buscar</label><input id="product-search" class="admin-input" type="search" placeholder="Nombre o SKU…" autocomplete="off"></div>
-<div><label class="admin-field-label" for="category-filter">Categoría</label><select id="category-filter" class="admin-input"><option value="">Todas</option></select></div>
-<div class="products-toolbar-actions"><button id="manage-categories-button" class="button button--ghost" type="button">Gestionar categorías</button><button id="new-product-button" class="button" type="button">+ Nuevo producto</button></div>
-</section>
-<section class="admin-section">
-<div class="admin-section-heading"><div><p class="eyebrow">CATÁLOGO ACTUAL</p><h2>Productos</h2></div><span id="product-count" class="admin-count">0 productos</span></div>
-<div id="product-status" class="admin-status" hidden></div>
-<div id="products-list" class="product-admin-list"></div>
-</section>
+<section class="admin-section products-toolbar" aria-label="Herramientas de productos"><div><label class="admin-field-label" for="product-search">Buscar</label><input id="product-search" class="admin-input" type="search" placeholder="Nombre o SKU…" autocomplete="off"></div><div><label class="admin-field-label" for="category-filter">Categoría</label><select id="category-filter" class="admin-input"><option value="">Todas</option></select></div><div class="products-toolbar-actions"><button id="manage-categories-button" class="button button--ghost" type="button">Gestionar categorías</button><button id="new-product-button" class="button" type="button">+ Nuevo producto</button></div></section>
+<section class="admin-section"><div class="admin-section-heading"><div><p class="eyebrow">CATÁLOGO ACTUAL</p><h2>Productos</h2></div><span id="product-count" class="admin-count">0 productos</span></div><div id="product-status" class="admin-status" hidden></div><div id="products-list" class="product-admin-list"></div></section>
 
-<div id="category-modal" class="admin-modal" hidden>
-<div class="admin-modal-backdrop" data-close-category-modal></div>
-<section class="admin-modal-card admin-modal-card--category" role="dialog" aria-modal="true" aria-labelledby="category-modal-title">
-<header class="admin-modal-header"><div><p class="eyebrow">CATÁLOGO</p><h2 id="category-modal-title">Gestionar categorías</h2></div><button class="admin-close" type="button" data-close-category-modal aria-label="Cerrar">×</button></header>
-<div class="category-manager">
-<form id="category-form" class="admin-form category-form" novalidate>
-<input id="category-id" type="hidden">
-<div class="admin-form-grid">
-<label>Nombre *<input id="category-name" class="admin-input" required maxlength="100" placeholder="Ej. Collares"></label>
-<label>Orden<input id="category-sort-order" class="admin-input" type="number" min="0" step="1" value="0"></label>
-</div>
-<label>Descripción<textarea id="category-description" class="admin-input" rows="3" maxlength="500" placeholder="Descripción opcional"></textarea></label>
-<label class="admin-checkbox"><input id="category-active" type="checkbox" checked> Categoría activa</label>
-<div id="category-form-error" class="admin-status is-error" hidden></div>
-<footer class="admin-modal-actions"><button id="cancel-category-edit" class="button button--ghost" type="button">Limpiar</button><button id="save-category" class="button" type="submit">Crear categoría</button></footer>
-</form>
-<section class="category-list-section">
-<div class="admin-section-heading"><div><p class="eyebrow">CATEGORÍAS</p><h3>Existentes</h3></div><span id="category-count" class="admin-count">0</span></div>
-<div id="categories-list" class="category-admin-list"></div>
-</section>
-</div>
-</section>
-</div>
+<div id="category-modal" class="admin-modal" hidden><div class="admin-modal-backdrop" data-close-category-modal></div><section class="admin-modal-card admin-modal-card--category" role="dialog" aria-modal="true" aria-labelledby="category-modal-title"><header class="admin-modal-header"><div><p class="eyebrow">CATÁLOGO</p><h2 id="category-modal-title">Gestionar categorías</h2></div><button class="admin-close" type="button" data-close-category-modal aria-label="Cerrar">×</button></header><div class="category-manager"><form id="category-form" class="admin-form category-form" novalidate><input id="category-id" type="hidden"><div class="admin-form-grid"><label>Nombre *<input id="category-name" class="admin-input" required maxlength="100" placeholder="Ej. Collares"></label><label>Orden<input id="category-sort-order" class="admin-input" type="number" min="0" step="1" value="0"></label></div><label>Descripción<textarea id="category-description" class="admin-input" rows="3" maxlength="500" placeholder="Descripción opcional"></textarea></label><label class="admin-checkbox"><input id="category-active" type="checkbox" checked> Categoría activa</label><div id="category-form-error" class="admin-status is-error" hidden></div><footer class="admin-modal-actions"><button id="cancel-category-edit" class="button button--ghost" type="button">Limpiar</button><button id="save-category" class="button" type="submit">Crear categoría</button></footer></form><section class="category-list-section"><div class="admin-section-heading"><div><p class="eyebrow">CATEGORÍAS</p><h3>Existentes</h3></div><span id="category-count" class="admin-count">0</span></div><div id="categories-list" class="category-admin-list"></div></section></div></section></div>
 
-<div id="product-modal" class="admin-modal" hidden>
-<div class="admin-modal-backdrop" data-close-modal></div>
-<section class="admin-modal-card" role="dialog" aria-modal="true" aria-labelledby="modal-title">
-<header class="admin-modal-header"><div><p class="eyebrow">CATÁLOGO</p><h2 id="modal-title">Nuevo producto</h2></div><button class="admin-close" type="button" data-close-modal aria-label="Cerrar">×</button></header>
-<form id="product-form" class="admin-form" novalidate>
-<input id="product-id" type="hidden">
-<div class="admin-form-grid">
-<label>Nombre<input id="product-name" class="admin-input" required maxlength="160"></label>
-<label>SKU<input id="product-sku" class="admin-input" maxlength="80"></label>
-<label>Categoría<select id="product-category" class="admin-input"><option value="">Sin categoría</option></select></label>
-<label>Precio base (COP)<input id="product-price" class="admin-input" type="number" min="0" step="1" required></label>
-<label>Precio anterior (COP)<input id="product-compare-price" class="admin-input" type="number" min="0" step="1"></label>
-<label class="admin-checkbox"><input id="product-featured" type="checkbox"> Destacar producto</label>
-</div>
-<label>Descripción<textarea id="product-description" class="admin-input" rows="4" maxlength="2000"></textarea></label>
-<label>Imágenes <span class="field-hint">PNG, JPG o WEBP</span><input id="product-images" class="admin-input" type="file" accept="image/png,image/jpeg,image/webp" multiple></label>
-<div id="image-preview" class="image-preview"></div>
-<div class="variant-box"><div class="admin-section-heading"><div><p class="eyebrow">OPCIONAL</p><h3>Primera variante</h3></div></div><div class="admin-form-grid"><label>Nombre de variante<input id="variant-name" class="admin-input" placeholder="Ej. Dorado"></label><label>SKU de variante<input id="variant-sku" class="admin-input"></label><label>Precio de variante<input id="variant-price" class="admin-input" type="number" min="0" step="1"></label></div></div>
-<div id="form-error" class="admin-status is-error" hidden></div>
-<footer class="admin-modal-actions"><button class="button button--ghost" type="button" data-close-modal>Cancelar</button><button id="save-product" class="button" type="submit">Guardar producto</button></footer>
-</form>
-</section>
-</div>
-</main>
-</div>
-<script src="../../js/runtime-config.js"></script>
-<script type="module" src="../../js/pages/products.js"></script>
-</body>
-</html>
+<div id="product-modal" class="admin-modal" hidden><div class="admin-modal-backdrop" data-close-modal></div><section class="admin-modal-card" role="dialog" aria-modal="true" aria-labelledby="modal-title"><header class="admin-modal-header"><div><p class="eyebrow">CATÁLOGO</p><h2 id="modal-title">Nuevo producto</h2></div><button class="admin-close" type="button" data-close-modal aria-label="Cerrar">×</button></header><form id="product-form" class="admin-form" novalidate><input id="product-id" type="hidden"><div class="admin-form-grid"><label>Nombre<input id="product-name" class="admin-input" required maxlength="160"></label><label>SKU<input id="product-sku" class="admin-input" maxlength="80"></label><label>Categoría<select id="product-category" class="admin-input"><option value="">Sin categoría</option></select></label><label>Precio base (COP)<input id="product-price" class="admin-input" type="number" min="0" step="1" required></label><label>Precio anterior (COP)<input id="product-compare-price" class="admin-input" type="number" min="0" step="1"></label><label class="admin-checkbox"><input id="product-featured" type="checkbox"> Destacar producto</label></div><label>Descripción<textarea id="product-description" class="admin-input" rows="4" maxlength="2000"></textarea></label><label>Imágenes <span class="field-hint">PNG, JPG o WEBP</span><input id="product-images" class="admin-input" type="file" accept="image/png,image/jpeg,image/webp" multiple></label><div id="image-preview" class="image-preview"></div>
+<section class="variant-manager"><div class="admin-section-heading"><div><p class="eyebrow">VARIANTES</p><h3>Presentaciones del producto</h3></div><button id="new-variant-button" class="button button--small button--ghost" type="button">+ Agregar variante</button></div><div id="variants-list" class="variant-admin-list"></div><div id="variant-empty" class="admin-empty"><strong>Sin variantes.</strong><span>Agrega al menos una variante para poder gestionar inventario por presentación.</span></div><div id="variant-form" class="variant-inline-form" hidden><input id="variant-id" type="hidden"><div class="admin-form-grid"><label>Nombre *<input id="variant-name" class="admin-input" maxlength="120" placeholder="Ej. Dorado"></label><label>SKU<input id="variant-sku" class="admin-input" maxlength="80"></label><label>Precio (COP)<input id="variant-price" class="admin-input" type="number" min="0" step="1"></label></div><label>Atributos <span class="field-hint">JSON opcional, por ejemplo {"color":"Dorado"}</span><input id="variant-attributes" class="admin-input" placeholder='{"color":"Dorado"}'></label><label class="admin-checkbox"><input id="variant-active" type="checkbox" checked> Variante activa</label><div id="variant-form-error" class="admin-status is-error" hidden></div><div class="admin-modal-actions"><button id="cancel-variant" class="button button--ghost" type="button">Cancelar</button><button id="save-variant" class="button" type="button">Guardar variante</button></div></div></section>
+<div id="form-error" class="admin-status is-error" hidden></div><footer class="admin-modal-actions"><button class="button button--ghost" type="button" data-close-modal>Cancelar</button><button id="save-product" class="button" type="submit">Guardar producto</button></footer></form></section></div>
+</main></div><script src="../../js/runtime-config.js"></script><script type="module" src="../../js/pages/products.js"></script></body></html>
