@@ -1,0 +1,5 @@
+.variant-manager{margin-top:1.5rem;padding:1rem;border:1px solid rgba(127,127,127,.18);border-radius:16px;background:rgba(127,127,127,.035)}
+.variant-admin-list{display:grid;gap:.75rem;margin-top:.75rem}
+.variant-admin-card{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:1rem;align-items:center;padding:.9rem 1rem;border:1px solid rgba(127,127,127,.16);border-radius:12px;background:var(--surface,#fff)}
+.variant-admin-card>div:first-child{display:grid;gap:.2rem}.variant-admin-card span,.variant-admin-card small{display:block;opacity:.72;font-size:.82rem}.variant-admin-actions{display:flex;gap:.5rem;flex-wrap:wrap}.variant-inline-form{margin-top:1rem;padding:1rem;border-radius:12px;border:1px dashed rgba(127,127,127,.28)}
+@media(max-width:700px){.variant-admin-card{grid-template-columns:1fr}.variant-admin-actions{width:100%}.variant-admin-actions .button{flex:1}.variant-manager .admin-section-heading{align-items:flex-start;gap:.75rem}}
