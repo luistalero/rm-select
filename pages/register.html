@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="es">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="Crea tu cuenta en R&M SELECT."><title>Crear cuenta | R&M SELECT</title><link rel="stylesheet" href="../css/main.css"><link rel="stylesheet" href="../css/auth.css"></head>
+<body class="auth-page">
+  <main class="auth-shell">
+    <a class="auth-brand" href="../index.html"><span>R&M</span> SELECT</a>
+    <section class="auth-card" aria-labelledby="register-title">
+      <p class="eyebrow">R&M SELECT</p><h1 id="register-title">Crea tu cuenta.</h1>
+      <p class="auth-copy">Regístrate para comprar, consultar tus pedidos y guardar tus datos.</p>
+      <form id="register-form" novalidate>
+        <label>Nombre completo<input id="full-name" type="text" autocomplete="name" minlength="2" required></label>
+        <label>Correo electrónico<input id="email" type="email" autocomplete="email" required></label>
+        <label>Teléfono<input id="phone" type="tel" autocomplete="tel" inputmode="tel" required></label>
+        <label>Contraseña<input id="password" type="password" autocomplete="new-password" minlength="8" required></label>
+        <label>Confirmar contraseña<input id="password-confirm" type="password" autocomplete="new-password" minlength="8" required></label>
+        <button class="button button--primary" id="submit-button" type="submit">Crear cuenta</button>
+        <p id="auth-status" class="auth-status" role="status" aria-live="polite"></p>
+      </form>
+      <div class="auth-links"><a href="login.html">Ya tengo una cuenta</a><a href="../index.html">Volver a la tienda</a></div>
+    </section>
+  </main>
+  <script src="../js/runtime-config.js"></script><script type="module" src="../js/pages/register.js"></script>
+</body></html>
