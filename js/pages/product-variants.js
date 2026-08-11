@@ -91,27 +91,16 @@ async function saveVariant() {
     const id = $('variant-id').value || null;
     const name = $('variant-name').value.trim();
     if (!name) throw new Error('El nombre de la variante es obligatorio.');
-
     const raw = $('variant-attributes').value.trim();
     let attributes = {};
     if (raw) {
       try { attributes = JSON.parse(raw); } catch { throw new Error('Los atributos deben ser JSON válido.'); }
       if (!attributes || Array.isArray(attributes) || typeof attributes !== 'object') throw new Error('Los atributos deben ser un objeto JSON.');
     }
-
     const priceRaw = $('variant-price').value.trim();
     const price = priceRaw === '' ? null : Number(priceRaw);
     if (price !== null && (!Number.isFinite(price) || price < 0)) throw new Error('El precio de la variante no es válido.');
-
-    const payload = {
-      product_id: productId,
-      name,
-      sku: $('variant-sku').value.trim() || null,
-      price,
-      attributes,
-      is_active: $('variant-active').checked,
-    };
-
+    const payload = { product_id: productId, name, sku: $('variant-sku').value.trim() || null, price, attributes, is_active: $('variant-active').checked };
     if (id) {
       const { error } = await supabase.from('product_variants').update(payload).eq('id', id);
       if (error) throw error;
@@ -120,15 +109,10 @@ async function saveVariant() {
       if (error) throw error;
       await ensureInventory(data.id);
     }
-
     clearForm();
     await loadVariants();
     const status = $('product-status');
-    if (status) {
-      status.hidden = false;
-      status.textContent = id ? 'Variante actualizada correctamente.' : 'Variante creada y preparada para inventario.';
-      status.className = 'admin-status is-success';
-    }
+    if (status) { status.hidden = false; status.textContent = id ? 'Variante actualizada correctamente.' : 'Variante creada y preparada para inventario.'; status.className = 'admin-status is-success'; }
   } catch (error) {
     console.error('[RM SELECT] variant save error:', error);
     showError(error?.code === '23505' ? 'Ya existe una variante con ese SKU o identificador.' : error?.message || 'No fue posible guardar la variante.');
@@ -147,7 +131,13 @@ async function toggleVariant(id) {
   await loadVariants();
 }
 
-$('new-variant-button')?.addEventListener('click', () => openForm());
+$('new-variant-button')?.addEventListener('click', () => {
+  if (!syncVariantControls()) {
+    showError('Primero guarda el producto y vuelve a abrirlo para agregar variantes.');
+    return;
+  }
+  openForm();
+});
 $('cancel-variant')?.addEventListener('click', clearForm);
 $('save-variant')?.addEventListener('click', saveVariant);
 $('variants-list')?.addEventListener('click', (event) => {
@@ -169,5 +159,15 @@ if (modal) {
   new MutationObserver(sync).observe(modal, { attributes: true, attributeFilter: ['hidden'] });
   document.addEventListener('rm-select:product-modal-open', sync);
   document.addEventListener('rm-select:product-saved', sync);
+
+  // products.js changes the input value before showing the modal. A value
+  // property change does not fire a MutationObserver, so synchronize after
+  // the product/edit click has completed as a fallback.
+  document.addEventListener('click', (event) => {
+    if (event.target.closest('[data-edit], #new-product-button')) {
+      setTimeout(sync, 0);
+    }
+  });
+
   sync();
 }
