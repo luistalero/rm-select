@@ -6,8 +6,11 @@ const status = $('module-status');
 const list = $('products-list');
 const productStatus = $('product-status');
 const modal = $('product-modal');
+const categoryModal = $('category-modal');
 const form = $('product-form');
+const categoryForm = $('category-form');
 const saveButton = $('save-product');
+const saveCategoryButton = $('save-category');
 const imageInput = $('product-images');
 const preview = $('image-preview');
 let currentUser = null;
@@ -50,17 +53,132 @@ async function guard() {
   $('module-role').textContent = profile.role;
   status.textContent = `Sesión activa como ${profile.role}.`;
   status.className = 'admin-status is-success';
-  if (profile.role === 'SUPER_ADMIN') document.querySelector('a[href="./administrators.html"]')?.removeAttribute('hidden');
   return true;
 }
 
+function populateCategoryControls() {
+  const activeOptions = categories.filter((category) => category.is_active);
+  const allOptions = categories;
+  $('category-filter').innerHTML = '<option value="">Todas</option>' + allOptions.map((category) => `<option value="${category.id}">${esc(category.name)}${category.is_active ? '' : ' (inactiva)'}</option>`).join('');
+  $('product-category').innerHTML = '<option value="">Sin categoría</option>' + activeOptions.map((category) => `<option value="${category.id}">${esc(category.name)}</option>`).join('');
+}
+
 async function loadCategories() {
-  const { data, error } = await supabase.from('categories').select('id,name,is_active').order('sort_order').order('name');
+  const { data, error } = await supabase.from('categories').select('id,name,slug,description,sort_order,is_active,created_at,updated_at').order('sort_order').order('name');
   if (error) throw error;
   categories = data || [];
-  const options = categories.map((category) => `<option value="${category.id}">${esc(category.name)}</option>`).join('');
-  $('category-filter').insertAdjacentHTML('beforeend', options);
-  $('product-category').insertAdjacentHTML('beforeend', options);
+  populateCategoryControls();
+  renderCategories();
+}
+
+function renderCategories() {
+  const categoryList = $('categories-list');
+  $('category-count').textContent = `${categories.length}`;
+  if (!categories.length) {
+    categoryList.innerHTML = '<div class="admin-empty"><strong>No hay categorías.</strong><span>Crea la primera para organizar el catálogo.</span></div>';
+    return;
+  }
+  categoryList.innerHTML = categories.map((category) => `
+    <article class="category-admin-card">
+      <div class="category-admin-order">${esc(category.sort_order)}</div>
+      <div class="category-admin-main">
+        <strong>${esc(category.name)}</strong>
+        <span>${esc(category.slug)}${category.description ? ` · ${esc(category.description)}` : ''}</span>
+      </div>
+      <span class="category-admin-state ${category.is_active ? 'is-active' : 'is-inactive'}">${category.is_active ? 'ACTIVA' : 'INACTIVA'}</span>
+      <div class="category-admin-actions">
+        <button class="button button--small button--ghost" type="button" data-edit-category="${category.id}">Editar</button>
+        <button class="button button--small button--ghost" type="button" data-toggle-category="${category.id}">${category.is_active ? 'Desactivar' : 'Activar'}</button>
+      </div>
+    </article>
+  `).join('');
+}
+
+function resetCategoryForm() {
+  categoryForm.reset();
+  $('category-id').value = '';
+  $('category-sort-order').value = '0';
+  $('category-active').checked = true;
+  $('category-modal-title').textContent = 'Gestionar categorías';
+  saveCategoryButton.textContent = 'Crear categoría';
+  $('category-form-error').hidden = true;
+}
+
+function editCategory(category) {
+  $('category-id').value = category.id;
+  $('category-name').value = category.name;
+  $('category-description').value = category.description || '';
+  $('category-sort-order').value = category.sort_order ?? 0;
+  $('category-active').checked = Boolean(category.is_active);
+  $('category-modal-title').textContent = 'Editar categoría';
+  saveCategoryButton.textContent = 'Guardar cambios';
+  $('category-form-error').hidden = true;
+  $('category-name').focus();
+}
+
+function openCategoryModal() {
+  resetCategoryForm();
+  categoryModal.hidden = false;
+  $('category-name').focus();
+}
+
+function closeCategoryModal() {
+  categoryModal.hidden = true;
+  resetCategoryForm();
+}
+
+async function saveCategory(event) {
+  event.preventDefault();
+  const errorBox = $('category-form-error');
+  errorBox.hidden = true;
+  saveCategoryButton.disabled = true;
+  saveCategoryButton.textContent = 'Guardando…';
+  try {
+    const id = $('category-id').value || null;
+    const name = $('category-name').value.trim();
+    if (!name) throw new Error('El nombre de la categoría es obligatorio.');
+    const slug = slugify(name);
+    if (!slug) throw new Error('El nombre no genera un slug válido.');
+    const sortOrder = Number($('category-sort-order').value || 0);
+    if (!Number.isInteger(sortOrder) || sortOrder < 0) throw new Error('El orden debe ser un número entero mayor o igual a 0.');
+    const payload = {
+      name,
+      slug,
+      description: $('category-description').value.trim() || null,
+      sort_order: sortOrder,
+      is_active: $('category-active').checked,
+    };
+    const query = id
+      ? supabase.from('categories').update(payload).eq('id', id)
+      : supabase.from('categories').insert(payload);
+    const { error } = await query;
+    if (error) throw error;
+    await loadCategories();
+    resetCategoryForm();
+    showMessage(id ? 'Categoría actualizada correctamente.' : 'Categoría creada correctamente.', 'success');
+  } catch (error) {
+    console.error('[RM SELECT] category save error:', error);
+    errorBox.textContent = error?.code === '23505' ? 'Ya existe una categoría con ese nombre o slug.' : (error?.message || 'No fue posible guardar la categoría.');
+    errorBox.hidden = false;
+  } finally {
+    saveCategoryButton.disabled = false;
+    saveCategoryButton.textContent = $('category-id').value ? 'Guardar cambios' : 'Crear categoría';
+  }
+}
+
+async function toggleCategory(id) {
+  const category = categories.find((item) => item.id === id);
+  if (!category) return;
+  const nextState = !category.is_active;
+  const action = nextState ? 'activar' : 'desactivar';
+  if (!confirm(`¿Quieres ${action} la categoría “${category.name}”?`)) return;
+  const { error } = await supabase.from('categories').update({ is_active: nextState }).eq('id', id);
+  if (error) {
+    showMessage(error.message, 'error');
+    return;
+  }
+  await loadCategories();
+  showMessage(`Categoría ${nextState ? 'activada' : 'desactivada'} correctamente.`, 'success');
 }
 
 async function loadProducts() {
@@ -219,9 +337,12 @@ async function publishProduct(id) {
 }
 
 $('new-product-button').addEventListener('click', () => openModal());
+$('manage-categories-button').addEventListener('click', openCategoryModal);
 $('product-search').addEventListener('input', renderProducts);
 $('category-filter').addEventListener('change', renderProducts);
 form.addEventListener('submit', saveProduct);
+categoryForm.addEventListener('submit', saveCategory);
+$('cancel-category-edit').addEventListener('click', resetCategoryForm);
 imageInput.addEventListener('change', () => {
   preview.innerHTML = Array.from(imageInput.files || []).map((file) => `<span>${esc(file.name)}</span>`).join('');
 });
@@ -231,7 +352,17 @@ list.addEventListener('click', (event) => {
   if (edit) openModal(products.find((product) => product.id === edit.dataset.edit));
   if (publish) publishProduct(publish.dataset.publish);
 });
+$('categories-list').addEventListener('click', (event) => {
+  const edit = event.target.closest('[data-edit-category]');
+  const toggle = event.target.closest('[data-toggle-category]');
+  if (edit) {
+    const category = categories.find((item) => item.id === edit.dataset.editCategory);
+    if (category) editCategory(category);
+  }
+  if (toggle) toggleCategory(toggle.dataset.toggleCategory);
+});
 document.querySelectorAll('[data-close-modal]').forEach((element) => element.addEventListener('click', closeModal));
+document.querySelectorAll('[data-close-category-modal]').forEach((element) => element.addEventListener('click', closeCategoryModal));
 $('logout-button').addEventListener('click', async () => { await supabase.auth.signOut(); window.location.href = '../login.html'; });
 $('menu-button')?.addEventListener('click', () => $('admin-sidebar').classList.toggle('is-open'));
 
