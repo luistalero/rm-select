@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Gestión de administradores de R&M SELECT.">
+  <meta name="theme-color" content="#FAF8F2">
+  <title>Administradores | R&M SELECT</title>
+  <link rel="stylesheet" href="../../css/main.css">
+  <link rel="stylesheet" href="../../css/admin.css">
+</head>
+<body class="admin-page">
+  <div class="admin-shell">
+    <aside class="admin-sidebar">
+      <a class="admin-brand" href="../../index.html"><strong>R&M</strong> SELECT</a>
+      <nav aria-label="Administración">
+        <a href="./index.html">Dashboard</a>
+        <a class="is-active" href="./administrators.html">Administradores</a>
+        <a href="#products">Productos</a><a href="#inventory">Inventario</a><a href="#orders">Pedidos</a>
+      </nav>
+      <a class="admin-store-link" href="../../index.html">← Ver tienda</a>
+    </aside>
+    <main class="admin-main">
+      <header class="admin-topbar">
+        <div><p class="eyebrow">SEGURIDAD</p><h1>Administradores</h1></div>
+        <a class="button button--ghost" href="./index.html">Volver al dashboard</a>
+      </header>
+      <section id="admins-status" class="admin-status" role="status" aria-live="polite">Comprobando permisos…</section>
+      <section class="admin-section">
+        <div class="admin-section-heading">
+          <div><p class="eyebrow">ACCESOS</p><h2>Equipo administrativo</h2></div>
+          <span id="admin-limit" class="admin-status">0 / 3 ADMIN activos</span>
+        </div>
+        <div id="admins-list" class="admin-list" aria-live="polite"></div>
+      </section>
+      <section class="admin-section admin-note">
+        <p><strong>Creación de administradores</strong></p>
+        <p>La creación de cuentas privilegiadas se realizará mediante un flujo seguro de invitación. No se crearán contraseñas ni se elevarán roles desde el navegador.</p>
+      </section>
+    </main>
+  </div>
+  <script src="../../js/runtime-config.js"></script>
+  <script type="module" src="../../js/pages/administrators.js"></script>
+</body>
+</html>
