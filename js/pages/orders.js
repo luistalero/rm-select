@@ -16,6 +16,7 @@ const modal = document.getElementById('order-modal');
 const modalDetail = document.getElementById('order-detail');
 
 let orders = [];
+let activeOrderId = null;
 
 const labels = {
   PENDING_PAYMENT: 'Pendiente de pago', PAYMENT_REVIEW: 'Revisión de pago', CONFIRMED: 'Confirmado',
@@ -90,7 +91,20 @@ async function loadOrders() {
   render();
 }
 
+function actionButtons(order) {
+  const actions = [];
+  if (order.order_status === 'PAYMENT_REVIEW') {
+    actions.push('<button class="button order-action order-action--approve" type="button" data-order-action="approve">Aprobar pago</button>');
+    actions.push('<button class="button button--danger order-action" type="button" data-order-action="reject">Rechazar pago</button>');
+  }
+  if (['PENDING_PAYMENT', 'PAYMENT_REVIEW'].includes(order.order_status)) {
+    actions.push('<button class="button button--ghost order-action" type="button" data-order-action="cancel">Cancelar pedido</button>');
+  }
+  return actions.length ? `<div class="order-actions"><div><strong>Acciones disponibles</strong><span>Las operaciones de pago usan las funciones seguras de Supabase.</span></div><div class="order-actions__buttons">${actions.join('')}</div></div>` : '';
+}
+
 async function openOrder(order) {
+  activeOrderId = order.id;
   modalDetail.innerHTML = '<p>Cargando detalle…</p>';
   modal.hidden = false;
   document.body.style.overflow = 'hidden';
@@ -112,13 +126,53 @@ async function openOrder(order) {
     </div>
     <article class="order-detail-card"><h3>Productos</h3><div class="admin-table-wrap"><table class="order-items"><thead><tr><th>Producto</th><th>Cant.</th><th>Precio</th><th>Total</th></tr></thead><tbody>${itemRows}</tbody></table></div></article>
     <article class="order-detail-card"><div class="order-detail-row"><span>Subtotal</span><strong>${money(order.subtotal)}</strong></div><div class="order-detail-row"><span>Descuento</span><strong>${money(order.discount)}</strong></div><div class="order-detail-row"><span>Envío</span><strong>${money(order.shipping_cost)}</strong></div><div class="order-detail-row"><span>Total</span><strong class="order-detail-total">${money(order.total)}</strong></div>${order.reservation_expires_at ? `<div class="order-detail-row"><span>Reserva expira</span><strong>${date(order.reservation_expires_at)}</strong></div>` : ''}</article>
+    ${actionButtons(order)}
     <div class="order-action-bar"><button class="button button--ghost" type="button" data-close-order-modal>Cerrar</button></div>
   </div>`;
+}
+
+async function runOrderAction(action) {
+  const order = orders.find(item => item.id === activeOrderId);
+  if (!order) return;
+
+  let rpcName;
+  let args;
+  let confirmation;
+
+  if (action === 'approve' || action === 'reject') {
+    const verified = action === 'approve';
+    confirmation = verified
+      ? `¿Confirmas que el comprobante del pedido #${order.order_number} es válido?\n\nAl aprobarlo se consumirá el stock reservado.`
+      : `¿Confirmas que quieres rechazar el comprobante del pedido #${order.order_number}?\n\nEl pedido se cancelará y se liberará la reserva.`;
+    if (!window.confirm(confirmation)) return;
+    const notes = window.prompt(verified ? 'Nota de aprobación (opcional):' : 'Motivo del rechazo (opcional):', '') ?? '';
+    rpcName = 'review_order_payment';
+    args = { p_order_id: order.id, p_verified: verified, p_notes: notes.trim() || null };
+  } else if (action === 'cancel') {
+    if (!window.confirm(`¿Cancelar el pedido #${order.order_number}?\n\nLa reserva de inventario será liberada.`)) return;
+    const reason = window.prompt('Motivo de la cancelación:', '') ?? '';
+    if (!reason.trim()) { window.alert('Debes indicar un motivo para cancelar el pedido.'); return; }
+    rpcName = 'cancel_order';
+    args = { p_order_id: order.id, p_reason: reason.trim() };
+  } else return;
+
+  const buttons = modalDetail.querySelectorAll('[data-order-action]');
+  buttons.forEach(button => { button.disabled = true; });
+
+  const { error } = await supabase.rpc(rpcName, args);
+  if (error) {
+    buttons.forEach(button => { button.disabled = false; });
+    throw error;
+  }
+
+  closeOrder();
+  await loadOrders();
 }
 
 function closeOrder() {
   modal.hidden = true;
   document.body.style.overflow = '';
+  activeOrderId = null;
 }
 
 search.addEventListener('input', render);
@@ -131,7 +185,12 @@ body.addEventListener('click', event => {
   const order = orders.find(item => item.id === button.dataset.id);
   if (order) openOrder(order).catch(showError);
 });
-modal.addEventListener('click', event => { if (event.target.closest('[data-close-order-modal]')) closeOrder(); });
+modal.addEventListener('click', event => {
+  const close = event.target.closest('[data-close-order-modal]');
+  if (close) closeOrder();
+  const action = event.target.closest('[data-order-action]');
+  if (action) runOrderAction(action.dataset.orderAction).catch(error => { console.error('[RM SELECT] order action:', error); window.alert(error?.message || 'No fue posible completar la acción.'); });
+});
 document.addEventListener('keydown', event => { if (event.key === 'Escape' && !modal.hidden) closeOrder(); });
 menuButton?.addEventListener('click', () => sidebar?.classList.toggle('is-open'));
 sidebar?.addEventListener('click', event => { if (event.target.closest('a')) sidebar.classList.remove('is-open'); });
