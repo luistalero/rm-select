@@ -3,16 +3,16 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Panel administrativo de RM SELECT.">
+  <meta name="description" content="Panel administrativo de R&M SELECT.">
   <meta name="theme-color" content="#FAF8F2">
-  <title>Panel administrativo | RM SELECT</title>
+  <title>Panel administrativo | R&M SELECT</title>
   <link rel="stylesheet" href="../../css/main.css">
   <link rel="stylesheet" href="../../css/admin.css">
 </head>
 <body class="admin-page">
   <div class="admin-shell">
     <aside class="admin-sidebar" id="admin-sidebar">
-      <a class="admin-brand" href="../../index.html"><strong>RM</strong> SELECT</a>
+      <a class="admin-brand" href="../../index.html"><strong>R&M</strong> SELECT</a>
       <nav aria-label="Administración">
         <a class="is-active" href="./index.html">Dashboard</a>
         <a href="#products">Productos</a>
@@ -21,34 +21,24 @@
         <a href="#customers">Clientes</a>
         <a href="#reviews">Reseñas</a>
         <a href="#audit">Auditoría</a>
-        <a id="admins-link" href="#admins">Administradores</a>
+        <a id="admins-link" href="./administrators.html" hidden>Administradores</a>
         <a href="#settings">Configuración</a>
       </nav>
       <a class="admin-store-link" href="../../index.html">← Ver tienda</a>
     </aside>
-
     <main class="admin-main">
       <header class="admin-topbar">
         <button id="sidebar-toggle" class="admin-menu" type="button" aria-label="Abrir menú">☰</button>
-        <div>
-          <p class="eyebrow">PANEL DE CONTROL</p>
-          <h1>Resumen del negocio</h1>
-        </div>
-        <div class="admin-user">
-          <div><strong id="user-name">Cargando…</strong><span id="user-role">—</span></div>
-          <button id="logout-button" class="button button--ghost" type="button">Cerrar sesión</button>
-        </div>
+        <div><p class="eyebrow">PANEL DE CONTROL</p><h1>Resumen del negocio</h1></div>
+        <div class="admin-user"><div><strong id="user-name">Cargando…</strong><span id="user-role">—</span></div><button id="logout-button" class="button button--ghost" type="button">Cerrar sesión</button></div>
       </header>
-
       <section id="dashboard-status" class="admin-status" role="status" aria-live="polite"></section>
-
       <section class="admin-grid" aria-label="Indicadores">
         <article class="metric-card"><span>Pedidos pendientes</span><strong id="metric-orders">—</strong><small>Próximamente conectado</small></article>
         <article class="metric-card"><span>Productos agotados</span><strong id="metric-out-stock">—</strong><small>Próximamente conectado</small></article>
         <article class="metric-card"><span>Reservas activas</span><strong id="metric-reservations">—</strong><small>Ventana de 2 horas</small></article>
         <article class="metric-card"><span>Tu rol</span><strong id="metric-role">—</strong><small>Permisos protegidos por Supabase</small></article>
       </section>
-
       <section class="admin-section">
         <div class="admin-section-heading"><div><p class="eyebrow">SIGUIENTE</p><h2>Módulos del negocio</h2></div></div>
         <div class="admin-module-grid">
