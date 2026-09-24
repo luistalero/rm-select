@@ -14,8 +14,10 @@ Run these migrations in Supabase SQL Editor in this order:
 6. `0005_one_time_super_admin_bootstrap.sql`
 7. `20260811121000_payment_receipt_flow.sql`
 8. `20260811180000_order_lifecycle.sql`
+9. `20260812000000_public_variant_stock.sql`
+10. `20260924000000_production_hardening.sql`
 
-`0002_rls.sql` is an older baseline and must **not** be run together with `0002_security_and_rls.sql`.
+`0002_rls.sql` is an older baseline and must **not** be run together with `0002_security_and_rls.sql`. Likewise, `20260811120000_public_variant_availability.sql` is superseded by `20260812000000_public_variant_stock.sql`.
 
 ## Order lifecycle
 
@@ -41,3 +43,7 @@ Use a long random secret (at least 24 characters). Then open `/setup/` on the de
 ## Authentication
 
 Email confirmation remains enabled. The first account can be created from the setup screen; if confirmation is required, confirm the email before normal sign-in.
+
+## Expiring reservations
+
+`expire_order_reservations()` must be scheduled in Supabase (for example, through the Cron section or a trusted server-side scheduler) at least every five minutes. It intentionally has no browser grant. Without that scheduled invocation, expired reservations remain locked until an administrator resolves them.

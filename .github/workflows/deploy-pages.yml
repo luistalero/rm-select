@@ -36,6 +36,7 @@ jobs:
           CLOUDINARY_CLOUD_NAME: ${{ vars.CLOUDINARY_CLOUD_NAME }}
           CLOUDINARY_UPLOAD_PRESET: ${{ vars.CLOUDINARY_UPLOAD_PRESET }}
           WHATSAPP_NUMBER: ${{ vars.WHATSAPP_NUMBER }}
+          WHATSAPP_NUMBERS: ${{ vars.WHATSAPP_NUMBERS }}
         run: |
           node <<'NODE'
           const fs = require('fs');
@@ -45,6 +46,8 @@ jobs:
             cloudinaryCloudName: process.env.CLOUDINARY_CLOUD_NAME || '',
             cloudinaryUploadPreset: process.env.CLOUDINARY_UPLOAD_PRESET || 'rm_select_products',
             whatsappNumber: process.env.WHATSAPP_NUMBER || '',
+            whatsappNumbers: (process.env.WHATSAPP_NUMBERS || '')
+              .split(',').map(value => value.trim()).filter(Boolean),
           };
           fs.writeFileSync(
             'js/runtime-config.js',

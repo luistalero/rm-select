@@ -76,7 +76,7 @@ function renderVariants() {
 }
 
 async function ensureInventory(variantId) {
-  const { error } = await supabase.from('inventory').insert({ variant_id: variantId, stock_on_hand: 0, stock_reserved: 0 });
+  const { error } = await supabase.rpc('ensure_inventory_record', { p_variant_id: variantId });
   if (error && error.code !== '23505') throw error;
 }
 

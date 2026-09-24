@@ -1,4 +1,4 @@
-import { getCartCount } from '../cart/cart.js';
+import { cartCount } from './cart.js';
 
 const intro = document.querySelector('#intro');
 const header = document.querySelector('.site-header');
@@ -11,5 +11,5 @@ window.addEventListener('scroll', () => {
 }, { passive: true });
 
 document.querySelectorAll('#cart-count, [data-cart-count]').forEach((el) => {
-  el.textContent = getCartCount();
+  el.textContent = cartCount();
 });

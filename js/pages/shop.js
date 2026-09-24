@@ -7,15 +7,28 @@ const esc=v=>String(v??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&
 let products=[];
 let availability=new Map();
 
+const params = new URLSearchParams(window.location.search);
+search.value = params.get('search') || '';
+
 async function load(){
   grid.innerHTML='<p class="store-loading">Cargando colección…</p>';
 
-  const [{data,error},stockMap]=await Promise.all([
+  const [{data,error},stockMap,{ data: categories, error: categoriesError }]=await Promise.all([
     supabase.from('products').select('id,name,slug,description,base_price,compare_at_price,featured,categories(name),product_variants(id,name,sku,price,is_active),product_images(url,alt_text,sort_order)').eq('status','ACTIVE').order('created_at',{ascending:false}),
-    getPublicVariantStock()
+    getPublicVariantStock(),
+    supabase.from('categories').select('name').eq('is_active',true).order('sort_order')
   ]);
 
   if(error)throw error;
+  if(categoriesError)throw categoriesError;
+
+  category.innerHTML = '<option value="">Todas las categorías</option>';
+  (categories || []).forEach(item => {
+    const option = document.createElement('option');
+    option.value = item.name;
+    option.textContent = item.name;
+    category.appendChild(option);
+  });
 
   availability=stockMap;
   products=(data||[]).map(p=>({...p,product_variants:(p.product_variants||[]).filter(v=>v.is_active)}));
@@ -61,6 +74,13 @@ function render(){
   }).join('');
 }
 
+function applyUrlFilters() {
+  const requestedCategory = params.get('category');
+  if (!requestedCategory || !category) return;
+  const match = [...category.options].find(option => option.value.toLowerCase() === requestedCategory.toLowerCase());
+  if (match) category.value = match.value;
+}
+
 grid.addEventListener('change',e=>{
   const select=e.target.closest('[data-variant-for]');
   if(!select)return;
@@ -104,4 +124,4 @@ grid.addEventListener('click',async e=>{
 
 search.addEventListener('input',render);
 category.addEventListener('change',render);
-load().catch(e=>{console.error(e);grid.innerHTML=`<div class="store-empty"><h3>No fue posible cargar la tienda</h3><p>${esc(e.message)}</p></div>`});
+load().then(applyUrlFilters).then(render).catch(e=>{console.error(e);grid.innerHTML=`<div class="store-empty"><h3>No fue posible cargar la tienda</h3><p>${esc(e.message)}</p></div>`});

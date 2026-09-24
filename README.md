@@ -46,3 +46,7 @@ Construir una plataforma comercial escalable que permita mostrar el catálogo, g
 La aplicación está diseñada para funcionar inicialmente como sitio estático en GitHub Pages, utilizando Supabase como backend gestionado y Cloudinary para los recursos multimedia.
 
 > No almacenar secretos privados, service-role keys ni credenciales administrativas en el frontend.
+
+## Operación en Supabase Free
+
+El workflow `Keep Supabase awake` realiza una lectura mínima del catálogo público cada 15 minutos para mantener actividad en el proyecto. Usa únicamente `SUPABASE_URL` y `SUPABASE_ANON_KEY` como variables de GitHub Actions, que son valores públicos para un cliente web. GitHub puede retrasar tareas programadas, por lo que no debe usarse como mecanismo de tiempo exacto.

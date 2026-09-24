@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /pages/admin/
+Disallow: /setup/
+Sitemap: https://rmselect.qd.je/sitemap.xml
