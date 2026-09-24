@@ -6,6 +6,19 @@ const form = document.getElementById('checkout-form');
 const summary = document.getElementById('checkout-summary');
 const status = document.getElementById('checkout-status');
 const button = document.getElementById('place-order');
+async function loadCheckoutInstructions() {
+  const { data, error } = await supabase.rpc('get_public_checkout_settings');
+  if (error || !data?.[0]) return;
+  const settings = data[0];
+  const text = [settings.payment_instructions, settings.shipping_policy].filter(Boolean).join(' ');
+  if (!text) return;
+  const note = document.createElement('p');
+  note.className = 'checkout-note';
+  note.textContent = text;
+  button.before(note);
+}
+
+loadCheckoutInstructions().catch(error => console.warn('[RM SELECT] checkout settings error:', error));
 const money = value => new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 }).format(Number(value || 0));
 const esc = value => String(value ?? '').replace(/[&<>\'"]/g, char => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', "'":'&#039;', '"':'&quot;' }[char]));
 
