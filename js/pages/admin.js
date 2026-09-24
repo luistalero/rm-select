@@ -39,6 +39,16 @@ async function loadAdmin() {
   userRole.textContent = profile.role;
   metricRole.textContent = profile.role;
   adminsLink.hidden = profile.role !== 'SUPER_ADMIN';
+  const [{ data: orders, error: ordersError }, { data: inventory, error: inventoryError }] = await Promise.all([
+    supabase.from('orders').select('id,order_status,reservation_expires_at').in('order_status', ['PENDING_PAYMENT', 'PAYMENT_REVIEW']),
+    supabase.from('inventory').select('stock_on_hand,stock_reserved'),
+  ]);
+  if (ordersError) throw ordersError;
+  if (inventoryError) throw inventoryError;
+  const pending = orders || [];
+  document.getElementById('metric-orders').textContent = pending.length;
+  document.getElementById('metric-reservations').textContent = pending.filter(order => order.reservation_expires_at && new Date(order.reservation_expires_at) > new Date()).length;
+  document.getElementById('metric-out-stock').textContent = (inventory || []).filter(item => Number(item.stock_on_hand) - Number(item.stock_reserved) <= 0).length;
   status.textContent = `Sesión activa como ${profile.role}.`;
   status.className = 'admin-status is-success';
 }
